@@ -8,24 +8,22 @@ import { isValidNumber } from '../utils/valid-number';
 export const imageProcess = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { filename, width, height } = req.query;
-
+    console.log('jj', req.query);
     if (!filename || !width || !height) {
       res.status(400).send('Missing some properties');
       return;
     }
-
     if (!isValidNumber(String(width)) || !isValidNumber(String(height))) {
       res.status(400).send('Image size is not valid');
       return;
     }
 
     const imageFolder = path.resolve(`public/images`);
-    if (!fs.existsSync(imageFolder)) {
+    const imagePath = getFilePath(imageFolder, filename.toString());
+    if (!fs.existsSync(imagePath)) {
       res.status(404).send('Image folder not found');
       return;
     }
-    const imagePath = getFilePath(imageFolder, filename.toString());
-
     const resizedImage = await sharp(imagePath)
       .resize(Number(width), Number(height))
       .jpeg({ mozjpeg: true })
